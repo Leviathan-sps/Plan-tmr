@@ -34,6 +34,7 @@ export default function Home() {
   // settings live in state so the timer reacts to slider changes
   const [cfg, setcfg] = useState<settings>(getsettings());
   const [showcfg, setshowcfg] = useState(false);
+  const [streak, setStreak] = useState(0); // todo: show a day streak up top, not wired yet
 
   const active = activeid ? gettask(activeid) : undefined;
   const open = tasks.filter((t) => !t.done);
@@ -53,7 +54,9 @@ export default function Home() {
   function blockdone(minutes: number) {
     if (!activeid) return;
     logsession(activeid, minutes);
+    // console.log("block done on", active?.title, minutes);
     refresh();
+    // todo: auto jump to the next task when this one hits its est? not sure if anoying
   }
 
   function patchcfg(part: Partial<settings>) {

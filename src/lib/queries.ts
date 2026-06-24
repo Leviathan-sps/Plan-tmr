@@ -53,11 +53,13 @@ export function alltasks(): task[] {
 
 // tasks planned for one specific day, dread ones float to the top
 export function tasksfor(day: string): task[] {
+  // const mine = alltasks().filter((t) => t.planfor === day);  // old way, then added the sort
   return alltasks()
     .filter((t) => t.planfor === day)
     .sort((a, b) => {
       if (a.dread !== b.dread) return a.dread ? -1 : 1;
       return a.createdat - b.createdat;
+      // return b.createdat - a.createdat;  // had it newest first first, looked weird
     });
 }
 
@@ -87,6 +89,7 @@ export function addtask(input: {
   const list = alltasks();
   list.push(t);
   write(taskskey, list);
+  // console.log("added task", t);  // todo remove, was debuging the dread flag
   return t;
 }
 

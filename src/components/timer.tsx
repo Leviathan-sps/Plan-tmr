@@ -42,10 +42,12 @@ export default function Timer({ cfg, onfocusdone, label }: props) {
   }, [cfg.focusmin, cfg.breakmin, cfg.longbreakmin]);
 
   // the actual countdown
+  // todo: maybe desktop notifcation when a block ends, not just the beep
   useEffect(() => {
     if (!running) return;
     tick.current = window.setInterval(() => {
       setleft((s) => s - 1);
+      // console.log("tick", left);  // dont, this logs the stale value anyway
     }, 1000);
     return () => {
       if (tick.current) window.clearInterval(tick.current);
