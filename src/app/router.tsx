@@ -8,15 +8,19 @@ import Plan from "../pages/plan";
 import Home from "../pages/home";
 import Progress from "../pages/progress";
 
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    children: [
-      { index: true, element: <Landing /> },
-      { path: "plan", element: <Plan /> },
-      { path: "today", element: <Home /> },
-      { path: "progress", element: <Progress /> },
-    ],
-  },
-]);
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <App />,
+      children: [
+        { index: true, element: <Landing /> },
+        { path: "plan", element: <Plan /> },
+        { path: "today", element: <Home /> },
+        { path: "progress", element: <Progress /> },
+      ],
+    },
+  ],
+  // "/" in dev, "/Plan-tmr/" on pages — keeps links inside the repo path
+  { basename: import.meta.env.BASE_URL },
+);
