@@ -1,4 +1,7 @@
-# build the vite spa and publish it to github pages on every push to main.
+# build the vite spa and publish the compiled dist/ to the gh-pages branch on
+# every push to main. pages then serves from that branch (deploy from a branch
+# -> gh-pages -> /root). uses only contents:write, so no pages-api permission
+# headaches.
 name: deploy to pages
 
 on:
@@ -7,14 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# one deploy at a time, newer push wins
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  contents: write
 
 jobs:
   build:
@@ -27,23 +23,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # serve index.html for unknown deep links (/plan, /today, /progress)
-      - run: cp dist/index.html dist/404.html
-      # enablement:true turns Pages on via the workflow's own token, so no
-      # manual settings toggle is needed for the first deploy
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: publish dist to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp dist/index.html dist/404.html   # spa fallback for deep links
+          touch dist/.nojekyll               # don't let jekyll eat the assets
+          cd dist
+          git init -q
+          git checkout -q -b gh-pages
+          git add -A
+          git -c user.name="Leviathan-sps" \
+              -c user.email="296449302+Leviathan-sps@users.noreply.github.com" \
+              commit -qm "deploy ${GITHUB_SHA}"
+          git push -fq "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
